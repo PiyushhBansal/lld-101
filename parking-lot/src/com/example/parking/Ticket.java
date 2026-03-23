@@ -8,11 +8,11 @@ public class Ticket {
     ParkingSlot slot;
     LocalDateTime entryTime;
 
-    public Ticket(String ticketId, Vehicle vehicle, ParkingSlot slot) {
+    public Ticket(String ticketId, Vehicle vehicle, ParkingSlot slot, LocalDateTime entryTime) {
         this.ticketId = ticketId;
         this.vehicle = vehicle;
         this.slot = slot;
-        this.entryTime = LocalDateTime.now();
+        this.entryTime = entryTime;
     }
 
     public String getTicketId() { return ticketId; }

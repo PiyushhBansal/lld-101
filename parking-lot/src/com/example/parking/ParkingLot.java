@@ -32,7 +32,7 @@ public class ParkingLot {
         return false;
     }
 
-    public Ticket park(Vehicle vehicle, EntryGate gate) {
+    public Ticket park(Vehicle vehicle, LocalDateTime entryTime, SlotType requestedType, int entryGateId) {
         ParkingSlot best = null;
         int bestDist = 99999;
 
@@ -41,7 +41,7 @@ public class ParkingLot {
             if (s.isOccupied()) continue;
             if (!canFit(vehicle.getType(), s.getSlotType())) continue;
 
-            int d = Math.abs(s.getDistance() - gate.getGateId());
+            int d = Math.abs(s.getDistance() - entryGateId);
             if (d < bestDist) {
                 bestDist = d;
                 best = s;
@@ -49,26 +49,49 @@ public class ParkingLot {
         }
 
         if (best == null) {
-            System.out.println("No slot for " + vehicle.getNumberPlate());
+            System.out.println("no slot for " + vehicle.getNumberPlate());
             return null;
         }
 
         best.occupy();
         counter++;
-        Ticket t = new Ticket("TKT-" + counter, vehicle, best);
+        Ticket t = new Ticket("TKT-" + counter, vehicle, best, entryTime);
         tickets.put(t.getTicketId(), t);
         return t;
     }
 
-    public Bill exit(String ticketId, LocalDateTime exitTime) {
-        Ticket t = tickets.get(ticketId);
+    public void status() {
+        int smallFree = 0, medFree = 0, largeFree = 0;
+        int smallTotal = 0, medTotal = 0, largeTotal = 0;
+
+        for (int i = 0; i < slots.size(); i++) {
+            ParkingSlot s = slots.get(i);
+            if (s.getSlotType() == SlotType.SMALL) {
+                smallTotal++;
+                if (!s.isOccupied()) smallFree++;
+            } else if (s.getSlotType() == SlotType.MEDIUM) {
+                medTotal++;
+                if (!s.isOccupied()) medFree++;
+            } else {
+                largeTotal++;
+                if (!s.isOccupied()) largeFree++;
+            }
+        }
+
+        System.out.println("SMALL: " + smallFree + "/" + smallTotal + " free");
+        System.out.println("MEDIUM: " + medFree + "/" + medTotal + " free");
+        System.out.println("LARGE: " + largeFree + "/" + largeTotal + " free");
+    }
+
+    public Bill exit(Ticket ticket, LocalDateTime exitTime) {
+        Ticket t = tickets.get(ticket.getTicketId());
         if (t == null) {
             System.out.println("ticket not found");
             return null;
         }
 
         t.getSlot().free();
-        tickets.remove(ticketId);
+        tickets.remove(t.getTicketId());
 
         long hrs = ChronoUnit.HOURS.between(t.getEntryTime(), exitTime);
         if (hrs < 1) hrs = 1;

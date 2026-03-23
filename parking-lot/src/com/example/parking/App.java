@@ -16,25 +16,33 @@ public class App {
         lot.addSlot(new ParkingSlot(7, SlotType.MEDIUM, 1, 7));
         lot.addSlot(new ParkingSlot(8, SlotType.LARGE, 1, 8));
 
-        EntryGate g1 = new EntryGate(1);
-        EntryGate g2 = new EntryGate(3);
+        LocalDateTime now = LocalDateTime.now();
 
-        System.out.println("--- Parking ---");
+        System.out.println("--- status before parking ---");
+        lot.status();
+
+        System.out.println("\n--- parking ---");
         Vehicle bike = new Vehicle("KA01-1234", VehicleType.TWO_WHEELER);
-        Ticket t1 = lot.park(bike, g1);
+        Ticket t1 = lot.park(bike, now, SlotType.SMALL, 1);
         t1.printTicket();
 
         Vehicle car = new Vehicle("KA02-5678", VehicleType.CAR);
-        Ticket t2 = lot.park(car, g2);
+        Ticket t2 = lot.park(car, now, SlotType.MEDIUM, 3);
         t2.printTicket();
 
         Vehicle bus = new Vehicle("KA03-9999", VehicleType.BUS);
-        Ticket t3 = lot.park(bus, g1);
+        Ticket t3 = lot.park(bus, now, SlotType.LARGE, 1);
         t3.printTicket();
 
-        System.out.println("\n--- Exit & Billing ---");
-        lot.exit(t1.getTicketId(), LocalDateTime.now().plusHours(3)).printBill();
-        lot.exit(t2.getTicketId(), LocalDateTime.now().plusHours(5)).printBill();
-        lot.exit(t3.getTicketId(), LocalDateTime.now().plusHours(2)).printBill();
+        System.out.println("\n--- status after parking ---");
+        lot.status();
+
+        System.out.println("\n--- exit ---");
+        lot.exit(t1, now.plusHours(3)).printBill();
+        lot.exit(t2, now.plusHours(5)).printBill();
+        lot.exit(t3, now.plusHours(2)).printBill();
+
+        System.out.println("\n--- status after exit ---");
+        lot.status();
     }
 }
